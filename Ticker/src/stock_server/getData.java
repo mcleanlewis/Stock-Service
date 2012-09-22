@@ -69,13 +69,14 @@ public class getData {
 //symbol lasttrade 52wlow 52whigh daysvaluechange lasttradeprice lasttradetime askRT bidRT 
 			
 		String [] results = ticker.getStockInfo(current.getSymb());
+		
 		try{
-		shortcode = results[0].replaceAll("\"", "");  
-        price = (Float.valueOf(results[5]));
-        low = (Float.valueOf(results[2]));
-        high = (Float.valueOf(results[3]));
-        bid = (Float.valueOf(results[8]));
-        ask = (Float.valueOf(results[7]));
+//		shortcode = results[0].replaceAll("\"", "");  
+//        price = (Float.valueOf(results[5]));
+//        low = (Float.valueOf(results[2]));
+//        high = (Float.valueOf(results[3]));
+//        bid = (Float.valueOf(results[8]));
+//        ask = (Float.valueOf(results[7]));
 		}catch (NumberFormatException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
