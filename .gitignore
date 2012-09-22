@@ -12,3 +12,11 @@ Stock_Ticker/.project
 Stock_Ticker/.settings/org.eclipse.jdt.core.prefs
 
 *.class
+
+Ticker/.settings/org.eclipse.jdt.core.prefs
+
+Ticker/.project
+
+Ticker/.classpath
+
+.DS_Store
