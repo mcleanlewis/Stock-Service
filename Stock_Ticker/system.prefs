@@ -1,0 +1,13 @@
+#Database prefs
+DATABASE=IP
+PORT=3306
+USERNAME=
+PASSWORD
+
+#listening prefs
+LISTENING_PORT=8080
+
+#port ranges
+PORT_HIGH=3000
+PORT_LOW=4000
+

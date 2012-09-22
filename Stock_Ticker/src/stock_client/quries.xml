@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<SQLQueries>
+
+
+<query>
+<id>1: Test</id>
+<statement>Select * from J_USER</statement>
+</query>
+
+<query>
+<id>2: Shows all portfolios related to user “Alex”</id>
+<statement>SELECT j_portfolio.portfolioname,j_portfolio.user_name FROM j_portfolio WHERE j_portfolio.user_name='Alex'</statement>
+</query>
+
+<query>
+<id>3: two inner joins involving the same table at least twice as per requirements – R7) – including an ORDER BY</id>
+<statement>SELECT j_transactions.tshare,j_transactions.portfolioname,j_transactions.broker_brokername FROM j_transactions inner join j_portfolio ON ( j_portfolio.portfolioname = j_transactions.portfolioname ) inner join j_broker ON ( j_broker.brokername = j_transactions.broker_brokername ) ORDER  BY j_transactions.tshare</statement>
+</query>
+
+<query>
+<id>4: Shows only users with at least one active portfolio using GROUP BY, ORDER BY and HAVING</id>
+<statement>SELECT j_user.NAME,COUNT(j_portfolio.user_name) AS "NumOfPortfolios" FROM j_portfolio,j_user 
+GROUP  BY j_user.NAME 
+HAVING COUNT(j_portfolio.user_name) >= 1 
+ORDER  BY j_user.NAME
+</statement>
+</query>
+
+<query>
+<id>5: Shows only the shortname of the shares with one or more transaction(s) and that are not in the IT IndustryType</id>
+<statement>SELECT j_transactions.tshare FROM j_transactions inner join j_share ON j_share.shortname = j_transactions.tshare AND j_share.industry_industrytype = (SELECT j_share.industry_industrytype FROM j_transactions,j_share WHERE j_share.industry_industrytype NOT IN ( SELECT industry_industrytype FROM exchangeindustries inner join j_transactions ON j_transactions.exchange_name = exchangeindustries.exchange_name WHERE industry_industrytype = 'IT') AND j_share.shortname = j_transactions.tshare)</statement>
+</query>
+
+<query>
+<id>6: Shows Shares from J_SHARE table that meet the criteria indicated</id>
+<statement>"SELECT j_share.shortname,Avg(high + low / 2) FROM j_share HAVING Avg(high + low / 2) &gt; 30 AND Avg(high + low / 2) &lt; 40 AND j_share.shortname NOT IN (SELECT j_transactions.tshare FROM j_transactions) GROUP BY j.share.shortname"</statement>
+</query>
+
+<query>
+<id>7: Shows linking between User-Portfolio-Transaction</id>
+<statement>SELECT DISTINCT j_transactions.tshare,j_transactions.portfolioname,j_transactions.broker_brokername FROM j_transactions inner join j_portfolio ON ( j_portfolio.portfolioname = j_transactions.portfolioname ) inner join j_exchange ON ( j_exchange.NAME = j_transactions.exchange_name ) inner join j_user ON ( j_user.broker_brokername = j_transactions.broker_brokername ) WHERE j_transactions.broker_brokername IS NOT NULL ORDER BY j_transactions.tshare</statement>
+</query>
+
+<query>
+<id>8: Shows the Best Broker</id>
+<statement>SELECT MAX("bestBroker"), "brokerName" FROM (SELECT SUM(j_transactions.amount) AS "bestBroker",j_transactions.broker_brokername AS "brokerName" FROM j_transactions GROUP BY j_transactions.broker_brokername) GROUP BY "brokerName" ORDER BY 1 DESC</statement>
+</query>
+
+<query>
+<id>Q9</id>
+<statement>29.7f</statement>
+</query>
+
+<query>
+<id>Q10</id>
+<statement>29.7f</statement>
+</query>
+
+
+</SQLQueries>
+

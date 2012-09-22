@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<SQLQueries>
+
+
+<query>
+<id>1: Test</id>
+<statement><![CDATA[Select * from J_USER]]></statement>
+</query>
+
+<query>
+<id>6: Shows Shares from J_SHARE table that meet the criteria indicated</id>
+<statement>"<![CDATA[SELECT j_share.shortname,Avg(high + low / 2) FROM j_share HAVING Avg(high + low / 2) > 30 AND Avg(high + low / 2) < 40 AND j_share.shortname NOT IN (SELECT j_transactions.tshare FROM j_transactions) GROUP BY j.share.shortname]]></statement>
+</query>
+
+
+</SQLQueries>
+

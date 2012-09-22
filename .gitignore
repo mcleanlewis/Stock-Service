@@ -1,0 +1,14 @@
+
+.metadata/.lock
+
+.metadata/.log
+
+.metadata
+
+Stock_Ticker/.classpath
+
+Stock_Ticker/.project
+
+Stock_Ticker/.settings/org.eclipse.jdt.core.prefs
+
+*.class
