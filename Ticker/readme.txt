@@ -1,0 +1,1 @@
+This is a university project comprising of a client and server. The code is bad & old and needs refactoring/rewriting. It is being used as a template/frame for [Heriot Watt University] Distributed systems coursework.
