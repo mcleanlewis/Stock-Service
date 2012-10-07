@@ -1,0 +1,15 @@
+#debug?
+DEBUG=TRUE
+
+#time in ms for data to expire
+DATA_AGE=5000
+
+#listening prefs
+LISTENING_PORT=8080
+
+#port ranges
+PORT_HIGH=3000
+PORT_LOW=4000
+
+#user creation
+USER_CREATION=2000
