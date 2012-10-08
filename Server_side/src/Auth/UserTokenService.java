@@ -17,11 +17,11 @@ import org.apache.commons.codec.binary.Base32;
 import Beans.User;
 import TwoFactorAuth.TOTP;
 
-public class UserToken extends Service {
+public class UserTokenService extends Service {
 
 	private final int port;
 
-	public UserToken(Configuration configuration, Auth auth)
+	public UserTokenService(Configuration configuration, Auth auth)
 			throws IOException {
 		super(configuration, auth);
 		port = Integer.parseInt(configuration.getProperty("USER_TOKEN"));

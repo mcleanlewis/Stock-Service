@@ -41,9 +41,9 @@ public class Auth extends Thread {
 	}
 
 	private void startTokenThread() {
-		UserToken tokenThread;
+		UserTokenService tokenThread;
 		try {
-			tokenThread = new UserToken(configuration, this);
+			tokenThread = new UserTokenService(configuration, this);
 			tokenThread.start();
 		} catch (IOException e) {
 			// problem with sockets
@@ -54,9 +54,9 @@ public class Auth extends Thread {
 
 	private void startRegThread() {
 
-		UserCreation userThread = null;
+		UserCreationService userThread = null;
 		try {
-			userThread = new UserCreation(configuration, this);
+			userThread = new UserCreationService(configuration, this);
 			userThread.start();
 		} catch (IOException e) {
 			// problem with sockets

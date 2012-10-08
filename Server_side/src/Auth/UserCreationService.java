@@ -17,11 +17,11 @@ import org.apache.commons.codec.digest.DigestUtils;
 
 import Beans.User;
 
-public class UserCreation extends Service {
+public class UserCreationService extends Service {
 
 	private final int port;
 
-	public UserCreation(Configuration configuration, Auth auth)
+	public UserCreationService(Configuration configuration, Auth auth)
 			throws IOException {
 		super(configuration, auth);
 		port = Integer.parseInt(configuration.getProperty("USER_CREATION"));
