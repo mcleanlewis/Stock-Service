@@ -14,7 +14,7 @@ import Interfaces.SendServerSide;
  * @author lewismclean
  *
  */
-public class Sockets implements SendServerSide {
+public class Sockets extends Thread implements SendServerSide {
 
 	private final Configuration configuration;
 
@@ -33,6 +33,16 @@ public class Sockets implements SendServerSide {
 		// AUTH replies to what stocks are available
 		//
 		//
+
+	}
+
+	@Override
+	public void run() {
+
+		// setup udp listner & auth socket
+
+		// create linkedlist for client sockets
+		// check auth token expiration and ask for renewal?
 
 	}
 

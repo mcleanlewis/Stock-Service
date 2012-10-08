@@ -1,70 +1,95 @@
 package Auth;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
+import helpers.Configuration;
 
-import org.apache.commons.codec.binary.Base32;
+import java.io.IOException;
+import java.util.HashMap;
 
-import Beans.Account;
-import TwoFactorAuth.TOTP;
+import Beans.User;
 
+/**
+ * this would be separate services but for ease I've just made it a thread
+ * 
+ * @author lewismclean
+ * 
+ */
 public class Auth extends Thread {
 
-	private final ConcurrentHashMap<Account, Integer> accountMap;
-	private static final int SECRET_SIZE = 10;
+	private final Configuration configuration;
+	private final HashMap<String, User> dataStore;
 
-	private static final int PASS_CODE_LENGTH = 6;
+	public Auth(Configuration configuration) {
 
-	private static final int INTERVAL = 30;
-
-	private static final int WINDOW = 30;
-
-	private static final String CRYPTO = "HmacSHA1";
-
-	private static final Random rand = new Random();
-
-	public Auth(ConcurrentHashMap<Account, Integer> accountMap) {
-		this.accountMap = accountMap;
+		this.configuration = configuration;
+		dataStore = new HashMap<String, User>();
 	}
 
 
 	@Override
 	public void run() {
 
-		// wait for request
-		// check request
-		// return response
+		// would be separate services
+		startRegThread();
+		startTokenThread();
+		startServerService();
 
 	}
 
-	public static boolean checkCode(String secret, long code)
-			throws NoSuchAlgorithmException, InvalidKeyException {
-		Base32 codec = new Base32();
-		byte[] decodedKey = codec.decode(secret);
+	private void startServerService() {
+		// TODO Auto-generated method stub
 
-		// Window is used to check codes generated in the near past.
-		// You can use this value to tune how far you're willing to go.
-		int window = WINDOW;
-		long currentInterval = getCurrentInterval();
+	}
 
-		for (int i = -window; i <= window; ++i) {
-			long hash = TOTP.generateTOTP(decodedKey, currentInterval + i,
-					PASS_CODE_LENGTH, CRYPTO);
+	private void startTokenThread() {
+		UserToken tokenThread;
+		try {
+			tokenThread = new UserToken(configuration, this);
+			tokenThread.start();
+		} catch (IOException e) {
+			// problem with sockets
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
 
-			if (hash == code) {
-				return true;
+	private void startRegThread() {
+
+		UserCreation userThread = null;
+		try {
+			userThread = new UserCreation(configuration, this);
+			userThread.start();
+		} catch (IOException e) {
+			// problem with sockets
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+
+	public synchronized void addUser(User user) {
+		dataStore.put(user.getName(), user);
+	}
+
+	public synchronized User getUser(String userName) {
+		return dataStore.get(userName);
+	}
+
+	public synchronized boolean userExists(User user) {
+		return userExists(user.getName());
+	}
+
+	public boolean userExists(String userName) {
+		return (dataStore.get(userName) == null) ? false : true;
+
+	}
+
+	public String isValidToken(String token) {
+		for (User user : dataStore.values()) {
+			if (token.equals(user.getCurrentToken())) {
+				if (user.getTokenExpiration() < System.currentTimeMillis()) {
+					return "TRUE";
+				}
 			}
 		}
-
-		// The validation code is invalid.
-		return false;
+		return "FALSE";
 	}
-
-	private static long getCurrentInterval() {
-		long currentTimeSeconds = System.currentTimeMillis() / 1000;
-		return currentTimeSeconds / INTERVAL;
-	}
-
 }

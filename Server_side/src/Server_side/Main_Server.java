@@ -6,10 +6,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.HashSet;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import Beans.Account;
+import Auth.Auth;
 import Beans.Stock;
 
 public class Main_Server {
@@ -28,8 +27,6 @@ public class Main_Server {
 		// set up the data structures and data
 
 		ConcurrentLinkedQueue<Stock> concurrentLinkedQueue = new ConcurrentLinkedQueue<Stock>();
-		ConcurrentHashMap<Account, Integer> accountMap = new ConcurrentHashMap<Account, Integer>();
-
 		HashSet<Stock> hashStockSet = null;
 
 		try {
@@ -48,17 +45,11 @@ public class Main_Server {
 				concurrentLinkedQueue, hashStockSet, configuration);
 		SendStockUpdates sendThread = new SendStockUpdates(
 				concurrentLinkedQueue, configuration);
-		UserCreation userThread = null;
-		try {
-			userThread = new UserCreation(configuration, accountMap);
-		} catch (IOException e) {
-			// problem with sockets
-			e.printStackTrace();
-			System.exit(1);
-		}
+		Auth authServiceThread = new Auth(configuration);
 
+		// start the threads
 		updateThread.start();
-		userThread.start();
+		authServiceThread.start();
 		sendThread.start();
 
 	}

@@ -1,4 +1,4 @@
-package Server_side;
+package Auth;
 
 import helpers.Configuration;
 
@@ -9,57 +9,41 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.net.ServerSocketFactory;
 
 import org.apache.commons.codec.binary.Base32;
 import org.apache.commons.codec.digest.DigestUtils;
 
-import Beans.Account;
+import Beans.User;
 
-public class UserCreation extends Thread {
+public class UserCreation extends Service {
 
-	private final Configuration configuration;
 	private final int port;
-	private boolean isDebugging = false;
 
-	private static final int SECRET_SIZE = 10;
-	private static final int PASS_CODE_LENGTH = 6;
-	private static final int INTERVAL = 30;
-	private static final int WINDOW = 30;
-	private static final String CRYPTO = "HmacSHA1";
-	private static final Random rand = new Random();
-	private final ConcurrentHashMap<Account, Integer> accountMap;
-
-	public UserCreation(Configuration configuration, ConcurrentHashMap<Account, Integer> accountMap) throws IOException {
-		this.configuration = configuration;
+	public UserCreation(Configuration configuration, Auth auth)
+			throws IOException {
+		super(configuration, auth);
 		port = Integer.parseInt(configuration.getProperty("USER_CREATION"));
-		if (configuration.getProperty("DEBUG").equals("TRUE")) {
-			isDebugging = true;
-		}
-		this.accountMap = accountMap;
 	}
 
 	@Override
 	public void run() {
 
-		if (isDebugging) {
+		if (super.isDebugging()) {
 			System.err.println("userCreation Started");
 		}
-
 		while (true) {
 			try {
-				Account temp = listenForRequest();
-
+				User temp = listenForRequest();
+				((Auth) super.getParentThread()).addUser(temp);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 	}
 
-	private Account listenForRequest() throws IOException {
+	private User listenForRequest() throws IOException {
 
 		ServerSocketFactory serverSocketFactory = ServerSocketFactory
 				.getDefault();
@@ -74,23 +58,21 @@ public class UserCreation extends Thread {
 		byte buffer[] = new byte[4096];
 		is.read(buffer);
 		String client = new String(buffer).trim().replace("\n", "");
-		if(isDebugging){
+		if (super.isDebugging()) {
 			System.out.println(client);
 		}
 
-		Account account = new Account();
+		User account = new User();
 		account.setName(client);
 		account.setPassword(encrypt("this isn't good security", client));
 		account.setSecret(generateSecret());
 		account.setCreated(new Date());
 
-		// qrCodeTicketRepository.createTicket(name);
 		String response = getQRBarcodeURL(account.getName(), "sockets_test",
 				account.getSecret());
 
 		os.write(response.getBytes());
 		os.flush();
-
 		s.close();
 		serverSocket.close();
 
@@ -106,17 +88,17 @@ public class UserCreation extends Thread {
 		return DigestUtils.shaHex(password + salt);
 	}
 
-	public static String generateSecret() {
+	public String generateSecret() {
 
 		// Allocating the buffer
-		byte[] buffer = new byte[SECRET_SIZE];
+		byte[] buffer = new byte[super.getSECRET_SIZE()];
 
 		// Filling the buffer with random numbers.
-		rand.nextBytes(buffer);
+		super.getRand().nextBytes(buffer);
 
 		// Getting the key and converting it to Base32
 		Base32 codec = new Base32();
-		byte[] secretKey = Arrays.copyOf(buffer, SECRET_SIZE);
+		byte[] secretKey = Arrays.copyOf(buffer, super.getSECRET_SIZE());
 		byte[] encodedKey = codec.encode(secretKey);
 		return new String(encodedKey);
 	}
