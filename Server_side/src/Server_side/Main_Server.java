@@ -46,6 +46,8 @@ public class Main_Server {
 
 		GetStockUpdates updateThread = new GetStockUpdates(
 				concurrentLinkedQueue, hashStockSet, configuration);
+		SendStockUpdates sendThread = new SendStockUpdates(
+				concurrentLinkedQueue, configuration);
 		UserCreation userThread = null;
 		try {
 			userThread = new UserCreation(configuration, accountMap);
@@ -57,6 +59,7 @@ public class Main_Server {
 
 		updateThread.start();
 		userThread.start();
+		sendThread.start();
 
 	}
 

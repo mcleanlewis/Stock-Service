@@ -72,14 +72,14 @@ public class GetStockUpdates extends Thread {
 		if (current.process(line)) {
 			// send to the consumer for processing
 			if (isDebugging) {
-				// System.out.println(line);
+				System.out.println(line);
 			}
 			sharedQueue.add(current);
 		}
 
 		else if (isDebugging) {
 
-			// System.out.println("No update");
+			System.out.println("No update");
 		}
 	}
 }

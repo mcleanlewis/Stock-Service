@@ -6,6 +6,8 @@ import java.net.Socket;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import Beans.Stock;
+import GT.GT_impl;
+import Sockets.Sockets;
 
 public class SendStockUpdates extends Thread {
 
@@ -14,6 +16,8 @@ public class SendStockUpdates extends Thread {
 	private boolean isDebugging = false;
 	private final int dataAge;
 	private Socket socket;
+	private GT_impl gt_impl;
+	private Sockets sockets;
 
 	// private graeme imp
 
@@ -26,6 +30,14 @@ public class SendStockUpdates extends Thread {
 			isDebugging = true;
 		}
 		dataAge = Integer.parseInt(configuration.getProperty("DATA_AGE"));
+
+		if (configuration.getProperty("IMP").equals("GT")) {
+			gt_impl = new GT_impl(this.configuration);
+			sockets = null;
+		} else {
+			sockets = new Sockets(this.configuration);
+			gt_impl = null;
+		}
 	}
 
 	@Override
@@ -44,7 +56,11 @@ public class SendStockUpdates extends Thread {
 					// been too long, old data
 				} else {
 					// send to interface
-
+					if ((null != gt_impl) && (null == sockets)) {
+						gt_impl.sendTick(sharedQueue.poll());
+					} else if ((null == gt_impl) && (null != sockets)) {
+						sockets.sendTick(sharedQueue.poll());
+					}
 				}
 			}
 		}

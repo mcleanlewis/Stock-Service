@@ -13,3 +13,6 @@ PORT_LOW=4000
 
 #user creation
 USER_CREATION=2000
+
+#implementation [SOCKETS,GT]
+IMP=GT

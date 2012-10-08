@@ -3,6 +3,8 @@
  */
 package Sockets;
 
+import helpers.Configuration;
+
 import java.util.List;
 
 import Beans.Stock;
@@ -14,10 +16,13 @@ import Interfaces.SendServerSide;
  */
 public class Sockets implements SendServerSide {
 
+	private final Configuration configuration;
+
 	/**
 	 * 
 	 */
-	public Sockets() {
+	public Sockets(Configuration configuration) {
+		this.configuration = configuration;
 		// TODO Auto-generated constructor stub
 
 		// set up connection thread with concurrent queue to handle connection
