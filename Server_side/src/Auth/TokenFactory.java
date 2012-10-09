@@ -28,6 +28,7 @@ public class TokenFactory {
 	static int iterationCount = 19;
 
 	public static String getToken(User user) {
+
 		try {
 			// Create the key
 			KeySpec keySpec = new PBEKeySpec((user.getName()+System.currentTimeMillis()).toCharArray(), salt, iterationCount);

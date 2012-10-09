@@ -41,15 +41,16 @@ public class Main_Server {
 
 		// set up the threads for processing:
 
+		Auth authServiceThread = new Auth(configuration);
 		GetStockUpdates updateThread = new GetStockUpdates(
 				concurrentLinkedQueue, hashStockSet, configuration);
 		SendStockUpdates sendThread = new SendStockUpdates(
 				concurrentLinkedQueue, configuration);
-		Auth authServiceThread = new Auth(configuration);
+
 
 		// start the threads
-		updateThread.start();
 		authServiceThread.start();
+		updateThread.start();
 		sendThread.start();
 
 	}

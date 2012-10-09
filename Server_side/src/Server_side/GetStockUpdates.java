@@ -41,7 +41,7 @@ public class GetStockUpdates extends Thread {
 	public void run() {
 
 		if (isDebugging) {
-			System.err.println("GetStock Started");
+			System.err.println(this.toString() + " Started");
 		}
 
 		// go until interupt

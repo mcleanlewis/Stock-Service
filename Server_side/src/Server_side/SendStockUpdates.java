@@ -44,7 +44,7 @@ public class SendStockUpdates extends Thread {
 	public void run() {
 
 		if (isDebugging) {
-			System.err.println("sendStock Started");
+			System.err.println(this.toString() + " Started");
 		}
 
 		while (true) {

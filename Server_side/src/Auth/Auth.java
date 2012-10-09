@@ -17,26 +17,44 @@ public class Auth extends Thread {
 
 	private final Configuration configuration;
 	private final HashMap<String, User> dataStore;
+	private boolean isDebugging = false;
 
 	public Auth(Configuration configuration) {
 
 		this.configuration = configuration;
 		dataStore = new HashMap<String, User>();
+		if (configuration.getProperty("DEBUG").equals("TRUE")) {
+			isDebugging = true;
+		}
+		if (isDebugging) {
+			System.err.println(this.toString() + " istantiated");
+		}
+		// would be separate services
+		startServerService();
+		startRegThread();
+		startTokenThread();
 	}
 
 
 	@Override
 	public void run() {
 
-		// would be separate services
-		startRegThread();
-		startTokenThread();
-		startServerService();
+		if (isDebugging) {
+			System.err.println(this.toString() + " Started");
+		}
+
+
 
 	}
 
 	private void startServerService() {
-		// TODO Auto-generated method stub
+		try {
+			ServerService serverService = new ServerService(configuration, this);
+			serverService.start();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
 

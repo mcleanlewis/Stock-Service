@@ -21,6 +21,7 @@ public class ServerService extends Service {
 		port = Integer.parseInt(configuration
 				.getProperty("SERVER_AUTH_SERVICE"));
 
+
 	}
 
 	@Override
@@ -47,6 +48,9 @@ public class ServerService extends Service {
 				.createServerSocket(port);
 
 		Socket s = serverSocket.accept();
+		if (super.isDebugging()) {
+			System.err.println("serverAuthService Received connection");
+		}
 		BufferedInputStream is = new BufferedInputStream(s.getInputStream());
 		BufferedOutputStream os = new BufferedOutputStream(s.getOutputStream());
 		try{

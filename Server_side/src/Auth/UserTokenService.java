@@ -31,7 +31,7 @@ public class UserTokenService extends Service {
 	public void run() {
 
 		if (super.isDebugging()) {
-			System.err.println("userAuth Started");
+			System.err.println(this.toString() + " Started");
 		}
 		while (true) {
 			try {
