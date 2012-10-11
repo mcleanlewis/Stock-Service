@@ -28,21 +28,13 @@ package Client;
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */ 
+ */
 
 
 
 /*
  * SimpleTableDemo.java requires no other files.
  */
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.border.Border;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableCellRenderer;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -54,50 +46,62 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.WindowConstants;
+import javax.swing.border.Border;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableCellRenderer;
+
 public class SimpleTableDemo extends AbstractTableModel implements TableCellRenderer {
-    /**
+	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private boolean DEBUG = false;
-    
-    int numRows;
-    int numCols;
-    Object[][] data = new Object [400][5];
-    long [] timer = new long[400];
-    int count;
-    ArrayList<Integer> filled;ArrayList<LastStock> symb;String type="";
-    final JTable table;
-    
-    
-    //table cell renderer
-    Border unselectedBorder = null;
-    Border selectedBorder = null;
-    boolean isBordered = true;
-    int last = 0;
-    
+	private final boolean DEBUG = false;
 
-    public SimpleTableDemo() {
-        super();
+	int numRows;
+	int numCols;
+	Object[][] data = new Object [400][5];
+	long [] timer = new long[400];
+	int count;
+	ArrayList<Integer>	      filled;
+	ArrayList<LastStock>	  symb;
+	String	                  type	             = "";
+	final JTable table;
 
-        filled = new ArrayList<Integer>();
-        jumble();
-        
-        String[] columnNames = {"Stock",
-                                "Price",
-                                "Ask",
-                                "Bid",
-                                "Status"};
 
-        
+	//table cell renderer
+	Border unselectedBorder = null;
+	Border selectedBorder = null;
+	boolean isBordered = true;
+	int last = 0;
 
-        table = new JTable(data, columnNames){
+
+	public SimpleTableDemo() {
+		super();
+
+		filled = new ArrayList<Integer>();
+		jumble();
+
+		String[] columnNames = {"Stock",
+				"Price",
+				"Ask",
+				"Bid",
+		"Status"};
+
+
+
+		table = new JTable(data, columnNames){
 			/**
 			 * 
 			 */
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
 			{
 				Component c = super.prepareRenderer(renderer, row, column);
@@ -105,18 +109,7 @@ public class SimpleTableDemo extends AbstractTableModel implements TableCellRend
 				//  Color row based on a cell value
 
 				if (data[row][4]== null){
-					
-						//maybe need to transpose this to other methods
-						//timer[row] = System.currentTimeMillis();
-						c.setBackground(getBackground());
-						int modelRow = convertRowIndexToModel(row);
-						type = (String)getModel().getValueAt(modelRow, 0);
-						c.setBackground(Color.BLACK);
-					}
-					
-				else{
-				if (data[row][4].equals("Increasing") ||data[row][4].equals("Decreasing") || System.currentTimeMillis() - timer[row] >= 3000)
-				{
+
 					//maybe need to transpose this to other methods
 					//timer[row] = System.currentTimeMillis();
 					c.setBackground(getBackground());
@@ -124,95 +117,108 @@ public class SimpleTableDemo extends AbstractTableModel implements TableCellRend
 					type = (String)getModel().getValueAt(modelRow, 0);
 					c.setBackground(Color.BLACK);
 				}
-				
-				
-				
-				if (data[row][4].equals("Decreasing") && System.currentTimeMillis() - timer[row] <= 3000)
-				{
-					//timer[row] = System.currentTimeMillis();
-					c.setBackground(getBackground());
-					int modelRow = convertRowIndexToModel(row);
-					type = (String)getModel().getValueAt(modelRow, 0);
-					c.setBackground(Color.RED);
-					
-				}
-				
-				
-				if (data[row][4].equals("Increasing")&& System.currentTimeMillis() - timer[row] <= 3000)
-				{
-					//timer[row] = System.currentTimeMillis();
-					c.setBackground(getBackground());
-					int modelRow = convertRowIndexToModel(row);
-				    type = (String)getModel().getValueAt(modelRow, 0);
-					c.setBackground(Color.GREEN);
-					
+
+				else{
+					if (data[row][4].equals("Increasing") ||data[row][4].equals("Decreasing") || ((System.currentTimeMillis() - timer[row]) >= 3000))
+					{
+						//maybe need to transpose this to other methods
+						//timer[row] = System.currentTimeMillis();
+						c.setBackground(getBackground());
+						int modelRow = convertRowIndexToModel(row);
+						type = (String)getModel().getValueAt(modelRow, 0);
+						c.setBackground(Color.BLACK);
 					}
-				
+
+
+
+					if (data[row][4].equals("Decreasing") && ((System.currentTimeMillis() - timer[row]) <= 3000))
+					{
+						//timer[row] = System.currentTimeMillis();
+						c.setBackground(getBackground());
+						int modelRow = convertRowIndexToModel(row);
+						type = (String)getModel().getValueAt(modelRow, 0);
+						c.setBackground(Color.RED);
+
+					}
+
+
+					if (data[row][4].equals("Increasing")&& ((System.currentTimeMillis() - timer[row]) <= 3000))
+					{
+						//timer[row] = System.currentTimeMillis();
+						c.setBackground(getBackground());
+						int modelRow = convertRowIndexToModel(row);
+						type = (String)getModel().getValueAt(modelRow, 0);
+						c.setBackground(Color.GREEN);
+
+					}
+
 				}
 				last =  -1;
 				return c;
 			}
 		};
-        table.setPreferredScrollableViewportSize(new Dimension(800, 600));
-        table.setFillsViewportHeight(true);
-        table.setBackground(Color.black);
-        table.setGridColor(Color.black);
-        table.setForeground(Color.gray);
-        
-        //table.getModel().addTableModelListener(this);
+		table.setPreferredScrollableViewportSize(new Dimension(800, 600));
+		table.setFillsViewportHeight(true);
+		table.setBackground(Color.black);
+		table.setGridColor(Color.black);
+		table.setForeground(Color.gray);
 
-        if (DEBUG) {
-            table.addMouseListener(new MouseAdapter() {
-                public void mouseClicked(MouseEvent e) {
-                    printDebugData(table);
-                }
-            });
-        }
 
-        //Create the scroll pane and add the table to it.
-        //JScrollPane scrollPane = new JScrollPane(table);
+		//table.getModel().addTableModelListener(this);
 
-        //Add the scroll pane to this panel.
-        //add(scrollPane);
-    }
+		if (DEBUG) {
+			table.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					printDebugData(table);
+				}
+			});
+		}
 
-    private void printDebugData(JTable table) {
-        numRows = table.getRowCount();
-        numCols = table.getColumnCount();
-        javax.swing.table.TableModel model = table.getModel();
+		//Create the scroll pane and add the table to it.
+		//JScrollPane scrollPane = new JScrollPane(table);
 
-        System.out.println("Value of data: ");
-        for (int i=0; i < numRows; i++) {
-            System.out.print("    row " + i + ":");
-            for (int j=0; j < numCols; j++) {
-                System.out.print("  " + model.getValueAt(i, j));
-            }
-            System.out.println();
-        }
-        System.out.println("--------------------------");
-    }
+		//Add the scroll pane to this panel.
+		//add(scrollPane);
+	}
 
-    /**
-     * Create the GUI and show it.  For thread safety,
-     * this method should be invoked from the
-     * event-dispatching thread.
-     * @throws IOException 
-     */
-    public void createAndShowGUI() throws IOException {
-        //Create and set up the window.
-    	
-        JFrame frame = new JFrame("Live Stock Display");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        JPanel panel = new JPanel();
-        JScrollPane scrollPane = new JScrollPane(table);
-        panel.add(scrollPane);
-        //Create and set up the content pane.
-        //SimpleTableDemo newContentPane = new SimpleTableDemo();
-        panel.setOpaque(true); //content panes must be opaque
-        frame.setContentPane(panel);
+	private void printDebugData(JTable table) {
+		numRows = table.getRowCount();
+		numCols = table.getColumnCount();
+		javax.swing.table.TableModel model = table.getModel();
 
-        //Display the window.
-        frame.pack();
+		System.out.println("Value of data: ");
+		for (int i=0; i < numRows; i++) {
+			System.out.print("    row " + i + ":");
+			for (int j=0; j < numCols; j++) {
+				System.out.print("  " + model.getValueAt(i, j));
+			}
+			System.out.println();
+		}
+		System.out.println("--------------------------");
+	}
+
+	/**
+	 * Create the GUI and show it.  For thread safety,
+	 * this method should be invoked from the
+	 * event-dispatching thread.
+	 * @throws IOException
+	 */
+	public void createAndShowGUI() throws IOException {
+		//Create and set up the window.
+
+		JFrame frame = new JFrame("Live Stock Display");
+		frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		JPanel panel = new JPanel();
+		JScrollPane scrollPane = new JScrollPane(table);
+		panel.add(scrollPane);
+		//Create and set up the content pane.
+		//SimpleTableDemo newContentPane = new SimpleTableDemo();
+		panel.setOpaque(true); //content panes must be opaque
+		frame.setContentPane(panel);
+
+		//Display the window.
+		frame.pack();
 		int height=600;
 		int width=800;
 		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
@@ -220,125 +226,127 @@ public class SimpleTableDemo extends AbstractTableModel implements TableCellRend
 		int y = (screen.height - height) / 2;
 		frame.setBounds(x, y, 830, 600);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setVisible(true);
-       
-    }
-    
-    
-    	
-    	
-    	
-    	
-    	
-    		
-    	private void jumble(){
-    		
-    		for(int i = 0;i<400;i++){
-    			
-    			filled.add(Integer.valueOf(i));
-    			
-    		}
-    		Collections.shuffle(filled);
-    		
-    		for(int p =0;p<filled.size();p++){
-    			System.out.println(filled.get(p));
-    			
-    		}
-    	}	
-    	
-    public void updatePrice(String received){
-    	
-    	numRows = table.getRowCount();
-        numCols = table.getColumnCount();
-    	
-    	System.out.println(numRows);
-    	
-    	String tempArray [] = received.split(",");
-    	String symb = tempArray[0];
-    	Float price = Float.valueOf(tempArray[2]);
-    	Float bid = Float.valueOf(tempArray[4]);
-    	Float ask = Float.valueOf(tempArray[3]);
-    	
-    	boolean found = false;
-    	
-    	for(int i= 0; i<400;i++){
-    		
-    		
-    			
-    		if(data[i][0] != null && data[i][0].equals(symb)){
-    			 
-    			found = true;
-    			if((Float)data[i][2]<bid || (Float)data[i][1]< price){
-    			
-    			table.setValueAt(price,i ,1);
-        		table.setValueAt(bid,i ,2);
-        		table.setValueAt(ask,i ,3);
-        		table.setValueAt("Increasing",i ,4);
-    			
-        		timer [i] = System.currentTimeMillis();
-    			
-    			//model.setRowColour(1, Color.RED);
-    			
-    			FlasherThread blink = new FlasherThread(table);
-    			blink.flashRow(i);
-    			blink.start();
-    			}
-    			
-    			if((Float)data[i][2]>bid || (Float)data[i][1]> price){
-        			
-        			table.setValueAt(price,i ,1);
-            		table.setValueAt(bid,i ,2);
-            		table.setValueAt(ask,i ,3);
-            		table.setValueAt("Decreasing",i ,4);
-        			
-            		timer [i] = System.currentTimeMillis();
-        			
-        			//model.setRowColour(1, Color.RED);
-        			
-        			FlasherThread blink = new FlasherThread(table);
-        			blink.flashRow(i);
-        			blink.start();
-        			}
-    		}
-    	}
-    	
-    		
-    	if(!found){
-    		
-    		int insert = filled.get(count);
-    		
-    		
-    		table.setValueAt(symb,insert ,0);
-    		table.setValueAt(price,insert ,1);
-    		table.setValueAt(bid,insert ,2);
-    		table.setValueAt(ask,insert ,3);
-    		table.setValueAt("Loaded",insert ,4);
-    		
-    		timer [insert] = System.currentTimeMillis();
-    		
-    		count++;
-    		
-    		FlasherThread blink = new FlasherThread(table);
-    		blink.flashRow(insert);
+		frame.setVisible(true);
+
+	}
+
+
+
+
+
+
+
+
+	private void jumble(){
+
+		for(int i = 0;i<400;i++){
+
+			filled.add(Integer.valueOf(i));
+
+		}
+		Collections.shuffle(filled);
+
+		for(int p =0;p<filled.size();p++){
+			System.out.println(filled.get(p));
+
+		}
+	}
+
+	public void updatePrice(String received){
+
+		numRows = table.getRowCount();
+		numCols = table.getColumnCount();
+
+		System.out.println(numRows);
+
+		String tempArray [] = received.split(",");
+		if (tempArray.length != 4) {
+
+			return;
+		}
+		String symb = tempArray[0];
+		Float price = Float.valueOf(tempArray[1]);
+		Float bid = Float.valueOf(tempArray[2]);
+		Float ask = Float.valueOf(tempArray[3]);
+		boolean found = false;
+
+		for(int i= 0; i<400;i++){
+
+			if((data[i][0] != null) && data[i][0].equals(symb)){
+
+				found = true;
+				if(((Float)data[i][2]<bid) || ((Float)data[i][1]< price)){
+
+					table.setValueAt(price,i ,1);
+					table.setValueAt(bid,i ,2);
+					table.setValueAt(ask,i ,3);
+					table.setValueAt("Increasing",i ,4);
+
+					timer [i] = System.currentTimeMillis();
+
+					//model.setRowColour(1, Color.RED);
+
+					FlasherThread blink = new FlasherThread(table);
+					blink.flashRow(i);
+					blink.start();
+				}
+
+				if(((Float)data[i][2]>bid) || ((Float)data[i][1]> price)){
+
+					table.setValueAt(price,i ,1);
+					table.setValueAt(bid,i ,2);
+					table.setValueAt(ask,i ,3);
+					table.setValueAt("Decreasing",i ,4);
+
+					timer [i] = System.currentTimeMillis();
+
+					//model.setRowColour(1, Color.RED);
+
+					FlasherThread blink = new FlasherThread(table);
+					blink.flashRow(i);
+					blink.start();
+				}
+			}
+		}
+
+
+		if(!found){
+
+			int insert = filled.get(count);
+
+
+			table.setValueAt(symb,insert ,0);
+			table.setValueAt(price,insert ,1);
+			table.setValueAt(bid,insert ,2);
+			table.setValueAt(ask,insert ,3);
+			table.setValueAt("Loaded",insert ,4);
+
+			timer [insert] = System.currentTimeMillis();
+
+			count++;
+
+			FlasherThread blink = new FlasherThread(table);
+			blink.flashRow(insert);
 			blink.start();
 			found = false;
-    	
-    	
-    		}
-    	
-    	}
-    
+
+
+		}
+
+	}
+
 
 	@Override
 	public int getColumnCount() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
-	
+
+	@Override
 	public boolean isCellEditable(int row, int column){
 		return false;
-		
-		
+
+
 	}
 
 	@Override
@@ -360,8 +368,11 @@ public class SimpleTableDemo extends AbstractTableModel implements TableCellRend
 		return null;
 	}
 
-	
-    
-  
+	public boolean isVisible() {
+		return table.isVisible();
+	}
+
+
+
 }
 

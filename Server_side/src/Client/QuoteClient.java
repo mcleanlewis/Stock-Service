@@ -40,7 +40,7 @@ import java.net.UnknownHostException;
 public class QuoteClient {
 
 	public static void main(String[] args) throws UnknownHostException,
-			SocketException {
+	SocketException {
 		//if (args.length != 1) {
 		//    System.out.println("Usage: java QuoteClient <hostname>");
 		//    return;
@@ -51,7 +51,7 @@ public class QuoteClient {
 
 
 		// get a datagram socket to recieve on 3446
-		DatagramSocket socket = new DatagramSocket(3446);
+		DatagramSocket socket = new DatagramSocket(9000);
 		//System.out.println(args[0]);
 
 		//SimpleTableDemo gui = new SimpleTableDemo();

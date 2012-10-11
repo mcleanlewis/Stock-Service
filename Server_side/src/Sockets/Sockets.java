@@ -5,8 +5,9 @@ package Sockets;
 
 import helpers.Configuration;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.HashMap;
@@ -15,6 +16,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.net.SocketFactory;
 
+import Beans.SocketWrapper;
 import Beans.Stock;
 import Interfaces.SendServerSide;
 
@@ -27,7 +29,7 @@ public class Sockets extends Thread implements SendServerSide {
 	private final Configuration configuration;
 	private final HashMap<String, Socket> clients;
 	private final Socket auth;
-	private final ConcurrentLinkedQueue<ServerSocket> newClients;
+	private final ConcurrentLinkedQueue<SocketWrapper>	newClients;
 	private final HandleClients handleClientsThread;
 	private boolean isDebugging = false;
 
@@ -38,14 +40,14 @@ public class Sockets extends Thread implements SendServerSide {
 		this.configuration = configuration;
 		auth = setupAuthSocket();
 		clients = new HashMap<String, Socket>();
-		newClients = new ConcurrentLinkedQueue<ServerSocket>();
-		handleClientsThread = new HandleClients(newClients, configuration);
-		handleClientsThread.run();
+		newClients = new ConcurrentLinkedQueue<SocketWrapper>();
+		handleClientsThread = new HandleClients(newClients, configuration, auth);
+		handleClientsThread.start();
 		if (configuration.getProperty("DEBUG").equals("TRUE")) {
 			isDebugging = true;
 		}
 		if (isDebugging) {
-			System.err.println(this.toString() + " Started");
+			System.err.println(this.toString() + "sockets Started");
 		}
 	}
 
@@ -77,9 +79,56 @@ public class Sockets extends Thread implements SendServerSide {
 	@Override
 	public void sendTick(Stock tick) {
 
-		for (ServerSocket clientConnection : newClients) {
-			// get the token
-			// check auth
+		System.out.print("send called  ");
+
+		for (SocketWrapper clientConnection : newClients) {
+
+			System.out.println("picked up socket");
+			DataOutputStream os = null;
+			DataInputStream is = null;
+
+			Socket socket = clientConnection.getSocket();
+			System.out.println("got client socket ");
+
+			if (socket.isConnected()) {
+
+				DataInputStream stdIn = new DataInputStream(System.in);
+
+				try {
+					os = new DataOutputStream(socket.getOutputStream());
+					is = new DataInputStream(socket.getInputStream());
+				} catch (UnknownHostException e) {
+					System.err.println("Don't know about host");
+				} catch (IOException e) {
+					System.err.println("Couldn't get I/O for the connection token service");
+				}
+
+				if (HandleClients.checkToken(clientConnection.getToken(), auth)) {
+
+					if ((socket != null) && (os != null) && (is != null)) {
+						try {
+							System.err.println("sent ****");
+							os.writeBytes(tick.toString());
+							os.writeByte('\n');
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+
+				} else {
+					try {
+						os.writeBytes("EXPIRED_TOKEN");
+						os.writeByte('\n');
+						String response = is.readLine();
+						clientConnection.setToken(response);
+
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
 			// add to map with timeout
 		}
 		// for each socket in map

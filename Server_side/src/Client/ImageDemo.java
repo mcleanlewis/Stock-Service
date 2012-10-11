@@ -1,4 +1,4 @@
-package helpers;
+package Client;
 import java.awt.BorderLayout;
 import java.awt.image.BufferedImage;
 import java.net.URL;
@@ -34,8 +34,9 @@ public class ImageDemo extends Thread
 			@Override
 			public void run()
 			{
-				JFrame editorFrame = new JFrame("Image Demo");
-				editorFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
+				JFrame editorFrame = new JFrame("SOCKETS_DEMO");
+				editorFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
 				BufferedImage image = null;
 				try

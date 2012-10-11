@@ -2,8 +2,8 @@ package Auth;
 
 import helpers.Configuration;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -51,24 +51,27 @@ public class ServerService extends Service {
 		if (super.isDebugging()) {
 			System.err.println("serverAuthService Received connection");
 		}
-		BufferedInputStream is = new BufferedInputStream(s.getInputStream());
-		BufferedOutputStream os = new BufferedOutputStream(s.getOutputStream());
+		DataInputStream is = new DataInputStream(s.getInputStream());
+		DataOutputStream os = new DataOutputStream(s.getOutputStream());
+
 		try{
 			while (true) {
-				byte buffer[] = new byte[4096];
-				is.read(buffer);
+				String token = is.readLine();
+				System.out.println("Auth service recieved " + token);
 				// might need to number the requests
-				String token = new String(buffer).trim().replace("\n", "");
+				// String token = new String(buffer).trim().replace("\n", "");
 				if (super.isDebugging()) {
 					System.out.println(token);
 				}
 				String response = ((Auth) super.getParentThread())
 						.isValidToken(token);
+				System.out.println("Auth service sending " + response);
+				os.writeBytes(response);
+				os.writeByte('\n');
 
-				os.write(response.getBytes());
-				os.flush();
 			}
 		} finally {
+			os.flush();
 			s.close();
 			serverSocket.close();
 		}

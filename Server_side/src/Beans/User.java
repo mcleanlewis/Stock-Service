@@ -1,7 +1,13 @@
 package Beans;
+
+import java.io.Serializable;
 import java.util.Date;
 
-public class User {
+public class User implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long	serialVersionUID	= 8156912488983838145L;
 	private long id;
 	private String name;
 	private String password;

@@ -10,8 +10,15 @@ public class Stock implements Serializable {
 	private static final long serialVersionUID = 6405852471831208L;
 	private String name;
 	private float price;
+	private float	          bid;
+	private float	          ask;
 	private boolean hasUpdated;
 	private long updateTime;
+
+	@Override
+	public String toString() {
+		return name + "," + price + "," + bid + "," + ask;
+	}
 
 	public Stock(String name) {
 		this.name = name;
@@ -60,12 +67,20 @@ public class Stock implements Serializable {
 		if (values[1].replace("\"", "").equals(name)) {
 			throw new Exception("Yahoo gave wrong info");
 		}
-
-		float newPrice = Float.parseFloat(values[5].replace("\"", ""));
-		if(newPrice == price){
-			return false;
+		try {
+			float newPrice = Float.parseFloat(values[5].replace("\"", ""));
+			float newBid = Float.parseFloat(values[8].replace("\"", ""));
+			float newAsk = Float.parseFloat(values[7].replace("\"", ""));
+			if (newPrice == price) {
+				return false;
+			}
+			price = newPrice;
+			bid = newBid;
+			ask = newAsk;
+		} catch (NumberFormatException e) {
+			System.err.println("number error");
 		}
-		price = newPrice;
+
 		updateTime = System.currentTimeMillis();
 		return true;
 	}
@@ -76,6 +91,36 @@ public class Stock implements Serializable {
 
 	public void setUpdateTime(long updateTime) {
 		this.updateTime = updateTime;
+	}
+
+	/**
+	 * @return the bid
+	 */
+	public float getBid() {
+		return bid;
+	}
+
+	/**
+	 * @param bid
+	 *            the bid to set
+	 */
+	public void setBid(float bid) {
+		this.bid = bid;
+	}
+
+	/**
+	 * @return the ask
+	 */
+	public float getAsk() {
+		return ask;
+	}
+
+	/**
+	 * @param ask
+	 *            the ask to set
+	 */
+	public void setAsk(float ask) {
+		this.ask = ask;
 	}
 
 }

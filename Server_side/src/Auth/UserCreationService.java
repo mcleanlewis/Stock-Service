@@ -7,13 +7,17 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.Date;
 
+import javax.crypto.NoSuchPaddingException;
 import javax.net.ServerSocketFactory;
 
 import org.apache.commons.codec.binary.Base32;
-import org.apache.commons.codec.digest.DigestUtils;
 
 import Beans.User;
 
@@ -31,12 +35,14 @@ public class UserCreationService extends Service {
 	public void run() {
 
 		if (super.isDebugging()) {
-			System.err.println("userCreation Started");
+			System.err.println("user creation thread started");
 		}
 		while (true) {
 			try {
 				User temp = listenForRequest();
-				((Auth) super.getParentThread()).addUser(temp);
+				if (null != temp) {
+					((Auth) super.getParentThread()).addUser(temp);
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -57,20 +63,47 @@ public class UserCreationService extends Service {
 
 		byte buffer[] = new byte[4096];
 		is.read(buffer);
-		String client = new String(buffer).trim().replace("\n", "");
-		if (super.isDebugging()) {
-			System.out.println(client);
+		String clientString = new String(buffer).trim().replace("\n", "");
+		String client = clientString.split("><")[0];
+		String password = clientString.split("><")[1]; // this isn't secure -shouldn't use object from VM string pool
+
+
+		String response = "ERROR:Username exists already";
+		User account = null;
+
+		if (!((Auth) super.getParentThread()).userExists(client)) {
+
+
+			account = new User();
+			account.setName(client);
+			try {
+				account.setPassword(TokenFactory.encrypt("this isn't good security", password));
+			} catch (InvalidKeySpecException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchAlgorithmException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchPaddingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InvalidKeyException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InvalidAlgorithmParameterException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			account.setSecret(generateSecret());
+			account.setCreated(new Date());
+
+			response = getQRBarcodeURL(account.getName(), "sockets_test",
+					account.getSecret());
+
+			if (super.isDebugging()) {
+				System.out.println("Registered " + client);
+			}
 		}
-
-		User account = new User();
-		account.setName(client);
-		account.setPassword(encrypt("this isn't good security", client));
-		account.setSecret(generateSecret());
-		account.setCreated(new Date());
-
-		String response = getQRBarcodeURL(account.getName(), "sockets_test",
-				account.getSecret());
-
 		os.write(response.getBytes());
 		os.flush();
 		s.close();
@@ -82,10 +115,6 @@ public class UserCreationService extends Service {
 	public static String getQRBarcodeURL(String user, String host, String secret) {
 		String format = "https://www.google.com/chart?chs=200x200&chld=M%%7C0&cht=qr&chl=otpauth://totp/%s@%s%%3Fsecret%%3D%s";
 		return String.format(format, user, host, secret);
-	}
-
-	public static String encrypt(String password, String salt) {
-		return DigestUtils.shaHex(password + salt);
 	}
 
 	public String generateSecret() {

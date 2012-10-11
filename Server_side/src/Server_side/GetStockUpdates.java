@@ -41,7 +41,7 @@ public class GetStockUpdates extends Thread {
 	public void run() {
 
 		if (isDebugging) {
-			System.err.println(this.toString() + " Started");
+			System.err.println(this.toString() + "get stock Started");
 		}
 
 		// go until interupt
@@ -50,7 +50,7 @@ public class GetStockUpdates extends Thread {
 			for (Stock code : stock) {
 				try {
 					getStockInfo(code);
-					Thread.sleep(1000);
+					// Thread.sleep(1000);
 				} catch (IOException e) {
 					e.printStackTrace();
 				} catch (Exception e) {
@@ -72,7 +72,7 @@ public class GetStockUpdates extends Thread {
 		if (current.process(line)) {
 			// send to the consumer for processing
 			if (isDebugging) {
-				System.out.println(line);
+				// System.out.println(line);
 			}
 			sharedQueue.add(current);
 		}

@@ -1,6 +1,5 @@
 package Client;
 
-import helpers.ImageDemo;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -63,7 +62,7 @@ public class Register {
 				is.close();
 				s.close();
 			} catch (IOException e) {
-				System.err.println("I/O failed on the connection to: taranis");
+				System.err.println("I/O failed on the connection to user creation service");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

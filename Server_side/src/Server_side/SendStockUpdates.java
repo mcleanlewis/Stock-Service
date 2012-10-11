@@ -2,7 +2,6 @@ package Server_side;
 
 import helpers.Configuration;
 
-import java.net.Socket;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import Beans.Stock;
@@ -15,12 +14,8 @@ public class SendStockUpdates extends Thread {
 	private final Configuration configuration;
 	private boolean isDebugging = false;
 	private final int dataAge;
-	private Socket socket;
 	private GT_impl gt_impl;
 	private Sockets sockets;
-
-	// private graeme imp
-
 
 	public SendStockUpdates(ConcurrentLinkedQueue<Stock> emptyQueue,
 			Configuration configuration) {

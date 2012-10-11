@@ -2,7 +2,11 @@ package Auth;
 
 import helpers.Configuration;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.HashMap;
 
 import Beans.User;
@@ -22,7 +26,7 @@ public class Auth extends Thread {
 	public Auth(Configuration configuration) {
 
 		this.configuration = configuration;
-		dataStore = new HashMap<String, User>();
+		dataStore = getDataStore();
 		if (configuration.getProperty("DEBUG").equals("TRUE")) {
 			isDebugging = true;
 		}
@@ -35,6 +39,33 @@ public class Auth extends Thread {
 		startTokenThread();
 	}
 
+
+	private HashMap<String, User> getDataStore() {
+		ObjectInputStream in = null;
+
+		try {
+			FileInputStream fis = new FileInputStream("userData.data");
+			in = new ObjectInputStream(fis);
+			HashMap<String, User> temp = (HashMap<String, User>) in.readObject();
+			return temp;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			if (null != in) {
+				try {
+					in.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		return new HashMap<String, User>();
+	}
 
 	@Override
 	public void run() {
@@ -85,6 +116,22 @@ public class Auth extends Thread {
 
 	public synchronized void addUser(User user) {
 		dataStore.put(user.getName(), user);
+		saveDataStore();
+	}
+
+	private void saveDataStore() {
+		FileOutputStream fos = null;
+		ObjectOutputStream out = null;
+		try {
+			fos = new FileOutputStream("userData.data");
+			out = new ObjectOutputStream(fos);
+			out.writeObject(dataStore);
+			out.close();
+			System.out.println("Object Persisted");
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+
 	}
 
 	public synchronized User getUser(String userName) {
@@ -102,8 +149,12 @@ public class Auth extends Thread {
 
 	public String isValidToken(String token) {
 		for (User user : dataStore.values()) {
-			if (token.equals(user.getCurrentToken())) {
-				if (user.getTokenExpiration() < System.currentTimeMillis()) {
+			// System.err.println(token + "  " + new
+			// String(user.getCurrentToken()));
+			if (token.equals(new String(user.getCurrentToken()))) {
+				if (user.getTokenExpiration() > System.currentTimeMillis()) {
+					long timeleft = user.getTokenExpiration() - System.currentTimeMillis();
+					System.out.println("TIME LEFT " + timeleft);
 					return "TRUE";
 				}
 			}
