@@ -15,24 +15,46 @@ import java.net.UnknownHostException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.net.ServerSocketFactory;
+import javax.net.SocketFactory;
 
 import Beans.SocketWrapper;
 
 public class HandleClients extends Thread {
 
-	private final Configuration configuration;
+	private Configuration	                           configuration	= null;
 	private final ConcurrentLinkedQueue<SocketWrapper>	newConnectedClients;
-	private final Socket	                                  authSocket;
+	private final Socket	                           authSocket;
 	private boolean isDebugging = false;
 
 	public HandleClients(ConcurrentLinkedQueue<SocketWrapper> emptyQueue,
-			Configuration configuration, Socket auth) {
+			Configuration configuration) {
 		this.configuration = configuration;
 		newConnectedClients = emptyQueue;
 		if (configuration.getProperty("DEBUG").equals("TRUE")) {
 			isDebugging = true;
 		}
-		authSocket = auth;
+		authSocket = setupAuthSocket();
+
+	}
+
+	private Socket setupAuthSocket() {
+
+		int port = Integer.parseInt(configuration.getProperty("SERVER_AUTH_SERVICE"));
+
+		SocketFactory socketFactory = SocketFactory.getDefault();
+		Socket s = null;
+		try {
+			s = socketFactory.createSocket("127.0.0.1", port);
+		} catch (UnknownHostException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		return s;
+
 	}
 
 	@Override
@@ -78,14 +100,15 @@ public class HandleClients extends Thread {
 			Socket s1 = null;
 			DatagramPacket out = new DatagramPacket(buf, buf.length, dp.getAddress(), udpPort - 1);
 			try {
-				s.send(out);
 				newClientSocket = serverSocketFactory
 						.createServerSocket(lastPort);
 				newClientSocket.setSoTimeout(10000);
+				s.send(out);
+
 				try {
-					System.out.println(System.currentTimeMillis());
+					// System.out.println(System.currentTimeMillis());
 					s1 = newClientSocket.accept();
-					System.out.println(System.currentTimeMillis());
+					// System.out.println(System.currentTimeMillis());
 				} catch (SocketTimeoutException e) {
 					System.out.println("connection timed out");
 				}
@@ -117,7 +140,7 @@ public class HandleClients extends Thread {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				if ((response != null) && checkToken(response, authSocket)) {
+				if ((response != null) && checkToken(response)) {
 					System.out.println("connection token authenticated");
 					newConnectedClients.add(new SocketWrapper(s1, response));
 				} else {
@@ -172,7 +195,7 @@ public class HandleClients extends Thread {
 
 
 
-	public static boolean checkToken(String request, Socket authSocket) {
+	public boolean checkToken(String request) {
 
 		DataOutputStream os = null;
 		DataInputStream is = null;

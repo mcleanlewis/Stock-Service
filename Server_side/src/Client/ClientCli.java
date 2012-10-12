@@ -98,14 +98,14 @@ public class ClientCli {
 
 	private static void login() throws IOException, InterruptedException {
 
-		SimpleTableDemo gui = new SimpleTableDemo();
+		// SimpleTableDemo gui = new SimpleTableDemo();
 
-		try {
-			gui.createAndShowGUI();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		// try {
+		// gui.createAndShowGUI();
+		// } catch (IOException e1) {
+		// // TODO Auto-generated catch block
+		// e1.printStackTrace();
+		// }
 
 		// set up connection
 		DatagramSocket socket = new DatagramSocket(8999);
@@ -126,11 +126,15 @@ public class ClientCli {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} finally {
+			socket.close();
+			socket = null;
 		}
 		String received = new String(packet.getData(), 0, packet.getLength());
 		System.out.println(received);
+
 		int port = Integer.parseInt(received);
-		Thread.sleep(1000);
+		Thread.sleep(500);
 		Socket s = socketFactory.createSocket("127.0.0.1", port);
 		// localhost just now
 		DataOutputStream os = null;
@@ -151,16 +155,17 @@ public class ClientCli {
 			os.writeBytes(new String(ClientCli.token));
 			os.writeByte('\n');
 			String response = "";
-			while (gui.isVisible()) {
+			while (true) {// gui.isVisible()) {
 
 				while ((tokenExpiration > System.currentTimeMillis())
-						&& !response.equals("EXPIRED_TOKEN")) {
+						|| !response.equals("EXPIRED_TOKEN")
+						|| !response.equals("ERROR: bad token")) {
 
 					// get prices and update
 					response = is.readLine();
 					if (response != null) {
 						System.out.println("client - " + response);
-						gui.updatePrice(response);
+						// gui.updatePrice(response);
 					}
 				}
 
@@ -168,6 +173,7 @@ public class ClientCli {
 				renewToken();
 				os.writeBytes(new String(token));
 				os.writeByte('\n');
+				response = is.readLine();
 
 			}
 

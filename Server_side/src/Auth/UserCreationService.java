@@ -51,64 +51,69 @@ public class UserCreationService extends Service {
 
 	private User listenForRequest() throws IOException {
 
-		ServerSocketFactory serverSocketFactory = ServerSocketFactory
-				.getDefault();
-
-		ServerSocket serverSocket = serverSocketFactory
-				.createServerSocket(port);
-
-		Socket s = serverSocket.accept();
-		BufferedInputStream is = new BufferedInputStream(s.getInputStream());
-		BufferedOutputStream os = new BufferedOutputStream(s.getOutputStream());
-
-		byte buffer[] = new byte[4096];
-		is.read(buffer);
-		String clientString = new String(buffer).trim().replace("\n", "");
-		String client = clientString.split("><")[0];
-		String password = clientString.split("><")[1]; // this isn't secure -shouldn't use object from VM string pool
-
-
-		String response = "ERROR:Username exists already";
 		User account = null;
+		Socket s = null;
+		ServerSocketFactory serverSocketFactory = ServerSocketFactory.getDefault();
+		ServerSocket serverSocket = serverSocketFactory.createServerSocket(port);
+		try {
+			s = serverSocket.accept();
+			BufferedInputStream is = new BufferedInputStream(s.getInputStream());
+			BufferedOutputStream os = new BufferedOutputStream(s.getOutputStream());
 
-		if (!((Auth) super.getParentThread()).userExists(client)) {
+			byte buffer[] = new byte[4096];
+			is.read(buffer);
+			String clientString = new String(buffer).trim().replace("\n", "");
+			String client = clientString.split("><")[0];
+			String password = clientString.split("><")[1]; // this isn't secure -shouldn't use object from VM string pool
 
 
-			account = new User();
-			account.setName(client);
-			try {
-				account.setPassword(TokenFactory.encrypt("this isn't good security", password));
-			} catch (InvalidKeySpecException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NoSuchAlgorithmException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NoSuchPaddingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InvalidKeyException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InvalidAlgorithmParameterException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			String response = "ERROR:Username exists already";
+
+
+			if (!((Auth) super.getParentThread()).userExists(client)) {
+
+
+				account = new User();
+				account.setName(client);
+				try {
+					account.setPassword(TokenFactory.encrypt("this isn't good security", password));
+				} catch (InvalidKeySpecException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (NoSuchAlgorithmException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (NoSuchPaddingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InvalidKeyException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InvalidAlgorithmParameterException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				account.setSecret(generateSecret());
+				account.setCreated(new Date());
+
+				response = getQRBarcodeURL(account.getName(), "sockets_test",
+						account.getSecret());
+
+				if (super.isDebugging()) {
+					System.out.println("Registered " + client);
+				}
 			}
-			account.setSecret(generateSecret());
-			account.setCreated(new Date());
+			os.write(response.getBytes());
+			os.flush();
+			s.close();
+			serverSocket.close();
 
-			response = getQRBarcodeURL(account.getName(), "sockets_test",
-					account.getSecret());
-
-			if (super.isDebugging()) {
-				System.out.println("Registered " + client);
+		} finally {
+			if (s != null) {
+				s.close();
 			}
+			serverSocket.close();
 		}
-		os.write(response.getBytes());
-		os.flush();
-		s.close();
-		serverSocket.close();
-
 		return account;
 	}
 

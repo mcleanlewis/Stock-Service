@@ -151,11 +151,13 @@ public class Auth extends Thread {
 		for (User user : dataStore.values()) {
 			// System.err.println(token + "  " + new
 			// String(user.getCurrentToken()));
-			if (token.equals(new String(user.getCurrentToken()))) {
-				if (user.getTokenExpiration() > System.currentTimeMillis()) {
-					long timeleft = user.getTokenExpiration() - System.currentTimeMillis();
-					System.out.println("TIME LEFT " + timeleft);
-					return "TRUE";
+			if (user.getCurrentToken() != null) {
+				if (token.equals(new String(user.getCurrentToken()))) {
+					if (user.getTokenExpiration() > System.currentTimeMillis()) {
+						long timeleft = user.getTokenExpiration() - System.currentTimeMillis();
+						System.out.println("TIME LEFT " + timeleft);
+						return "TRUE";
+					}
 				}
 			}
 		}

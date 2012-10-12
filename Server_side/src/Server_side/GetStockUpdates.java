@@ -78,7 +78,7 @@ public class GetStockUpdates extends Thread {
 		}
 
 		else if (isDebugging) {
-
+			sharedQueue.add(current);
 			System.out.println("No update");
 		}
 	}

@@ -10,11 +10,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
-import javax.net.SocketFactory;
 
 import Beans.SocketWrapper;
 import Beans.Stock;
@@ -27,8 +24,6 @@ import Interfaces.SendServerSide;
 public class Sockets extends Thread implements SendServerSide {
 
 	private final Configuration configuration;
-	private final HashMap<String, Socket> clients;
-	private final Socket auth;
 	private final ConcurrentLinkedQueue<SocketWrapper>	newClients;
 	private final HandleClients handleClientsThread;
 	private boolean isDebugging = false;
@@ -38,10 +33,8 @@ public class Sockets extends Thread implements SendServerSide {
 	 */
 	public Sockets(Configuration configuration) {
 		this.configuration = configuration;
-		auth = setupAuthSocket();
-		clients = new HashMap<String, Socket>();
 		newClients = new ConcurrentLinkedQueue<SocketWrapper>();
-		handleClientsThread = new HandleClients(newClients, configuration, auth);
+		handleClientsThread = new HandleClients(newClients, configuration);
 		handleClientsThread.start();
 		if (configuration.getProperty("DEBUG").equals("TRUE")) {
 			isDebugging = true;
@@ -51,26 +44,7 @@ public class Sockets extends Thread implements SendServerSide {
 		}
 	}
 
-	private Socket setupAuthSocket() {
 
-		int port = Integer.parseInt(configuration
-				.getProperty("SERVER_AUTH_SERVICE"));
-
-		SocketFactory socketFactory = SocketFactory.getDefault();
-		Socket s = null;
-		try {
-			s = socketFactory.createSocket("127.0.0.1", port);
-		} catch (UnknownHostException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
-		return s;
-
-	}
 
 
 	/* (non-Javadoc)
@@ -103,7 +77,7 @@ public class Sockets extends Thread implements SendServerSide {
 					System.err.println("Couldn't get I/O for the connection token service");
 				}
 
-				if (HandleClients.checkToken(clientConnection.getToken(), auth)) {
+				if (handleClientsThread.checkToken(clientConnection.getToken())) {
 
 					if ((socket != null) && (os != null) && (is != null)) {
 						try {
@@ -124,18 +98,25 @@ public class Sockets extends Thread implements SendServerSide {
 						clientConnection.setToken(response);
 
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						System.err.println("client disconnected");
+						clientConnection.setToken("");
+						// clientConnection.setSocket(null);
+						newClients.remove(clientConnection);
 					}
 				}
 			}
-			// add to map with timeout
-		}
-		// for each socket in map
-		// check the time
-		// check the connection
-		// send the stock
 
+		}
+		// tidyUpQueue();
+
+	}
+
+	private void tidyUpQueue() {
+		for (SocketWrapper socketWrapper : newClients) {
+			if (socketWrapper.getSocket() == null) {
+				newClients.remove(socketWrapper);
+			}
+		}
 	}
 
 	/* (non-Javadoc)
