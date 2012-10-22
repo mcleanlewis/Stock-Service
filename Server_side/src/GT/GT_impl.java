@@ -13,19 +13,24 @@ public class GT_impl extends Thread implements SendServerSide {
 
 	public GT_impl(Configuration configuration) {
 		this.configuration = configuration;
+
+		// start a thread here
+
 	}
+
 
 	@Override
 	public void run() {
 
-		// connection stuff in here in a loop
-		// perhaps pass the non-blocking queue to this class via constructor?
 
 	}
 
 	@Override
 	public void sendTick(Stock tick) {
-		// TODO Auto-generated method stub
+
+		// uses imp for communication
+		//
+
 		System.out.println("sent stock");
 
 	}
