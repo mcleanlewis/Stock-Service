@@ -156,7 +156,7 @@ public class Auth extends Thread {
 					if (user.getTokenExpiration() > System.currentTimeMillis()) {
 						long timeleft = user.getTokenExpiration() - System.currentTimeMillis();
 						System.out.println("TIME LEFT " + timeleft);
-						return "TRUE";
+						return Long.toString(user.getTokenExpiration());
 					}
 				}
 			}

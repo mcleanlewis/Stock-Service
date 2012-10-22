@@ -50,7 +50,7 @@ public class GetStockUpdates extends Thread {
 			for (Stock code : stock) {
 				try {
 					getStockInfo(code);
-					// Thread.sleep(1000);
+					Thread.sleep(1000);
 				} catch (IOException e) {
 					e.printStackTrace();
 				} catch (Exception e) {
@@ -81,6 +81,7 @@ public class GetStockUpdates extends Thread {
 			sharedQueue.add(current);
 			System.out.println("No update");
 		}
+
 	}
 }
 

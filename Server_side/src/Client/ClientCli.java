@@ -158,8 +158,8 @@ public class ClientCli {
 			while (true) {// gui.isVisible()) {
 
 				while ((tokenExpiration > System.currentTimeMillis())
-						|| !response.equals("EXPIRED_TOKEN")
-						|| !response.equals("ERROR: bad token")) {
+				        && !response.equals("EXPIRED_TOKEN")
+				        && !response.equals("ERROR: bad token")) {
 
 					// get prices and update
 					response = is.readLine();
@@ -211,7 +211,7 @@ public class ClientCli {
 					ClientCli.token = response;
 					System.out.println("Received token, will expire in ~2 minutes");
 					// TODO set the timeout function
-					tokenExpiration = System.currentTimeMillis() + 9000;
+					tokenExpiration = System.currentTimeMillis() + 28000;
 					System.out.println(ClientCli.token);
 				} else {
 					System.err.println("ERROR:Bad credentials");

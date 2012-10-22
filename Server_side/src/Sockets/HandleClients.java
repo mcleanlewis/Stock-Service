@@ -140,9 +140,11 @@ public class HandleClients extends Thread {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				if ((response != null) && checkToken(response)) {
-					System.out.println("connection token authenticated");
-					newConnectedClients.add(new SocketWrapper(s1, response));
+				String tokenResponse = checkToken(response);
+				if ((response != null) && !tokenResponse.equals("FALSE")) {
+					long timeleft = Long.parseLong(tokenResponse) - System.currentTimeMillis();
+					System.out.println("TIME LEFT " + timeleft);
+					newConnectedClients.add(new SocketWrapper(s1, response, tokenResponse));
 				} else {
 					errorAndClose(s1);
 					s1 = null;
@@ -195,7 +197,7 @@ public class HandleClients extends Thread {
 
 
 
-	public boolean checkToken(String request) {
+	public String checkToken(String request) {
 
 		DataOutputStream os = null;
 		DataInputStream is = null;
@@ -217,14 +219,17 @@ public class HandleClients extends Thread {
 				os.writeByte('\n');
 				// System.err.println("server to auth " + request);
 				response = is.readLine();
+
 				// System.err.println("back from auth " + response);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			return Boolean.parseBoolean(response);
+			if (!response.equals("FALSE")) {
+				return response;
+			}
 		}
-		return false;
+		return "FALSE";
 
 	}
 }

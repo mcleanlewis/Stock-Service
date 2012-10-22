@@ -104,7 +104,7 @@ public class UserTokenService extends Service {
 					User currentUser = ((Auth) super.getParentThread()).getUser(requestArray[0]);
 
 					if (new String(currentUser.getCurrentToken()).equals(requestArray[1])
-					        && ((currentUser.getTokenExpiration() + 10000) > System
+							&& ((currentUser.getTokenExpiration() + 10000) > System
 									.currentTimeMillis())) {
 						token = setUserToken(currentUser);
 					} else {
@@ -127,7 +127,7 @@ public class UserTokenService extends Service {
 		String token;
 		token = TokenFactory.getToken(currentUser);
 		currentUser.setCurrentToken(token.toCharArray());
-		currentUser.setTokenExpiration(System.currentTimeMillis() + 9000); // access for just over 2 minutes
+		currentUser.setTokenExpiration(System.currentTimeMillis() + 30000); // access for just over 2 minutes
 		return token;
 	}
 

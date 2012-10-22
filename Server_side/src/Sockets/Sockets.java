@@ -53,16 +53,16 @@ public class Sockets extends Thread implements SendServerSide {
 	@Override
 	public void sendTick(Stock tick) {
 
-		System.out.print("send called  ");
+		//System.out.print("send called  ");
 
 		for (SocketWrapper clientConnection : newClients) {
 
-			System.out.println("picked up socket");
+			//System.out.println("picked up socket");
 			DataOutputStream os = null;
 			DataInputStream is = null;
 
 			Socket socket = clientConnection.getSocket();
-			System.out.println("got client socket ");
+			// System.out.println("got client socket ");
 
 			if (socket.isConnected()) {
 
@@ -76,8 +76,10 @@ public class Sockets extends Thread implements SendServerSide {
 				} catch (IOException e) {
 					System.err.println("Couldn't get I/O for the connection token service");
 				}
+				long timeleft = clientConnection.getTokenExpiration() - System.currentTimeMillis();
+				System.out.println("TIME LEFT socket " + timeleft);
 
-				if (handleClientsThread.checkToken(clientConnection.getToken())) {
+				if (timeleft > 0) {
 
 					if ((socket != null) && (os != null) && (is != null)) {
 						try {
@@ -95,25 +97,30 @@ public class Sockets extends Thread implements SendServerSide {
 						os.writeBytes("EXPIRED_TOKEN");
 						os.writeByte('\n');
 						String response = is.readLine();
-						clientConnection.setToken(response);
+						if (response != null) {
+							clientConnection.setToken(response);
+						} else {
+							throw new IOException("no response from client");
+						}
 
 					} catch (IOException e) {
 						System.err.println("client disconnected");
 						clientConnection.setToken("");
+						clientConnection.setTokenExpiration(System.currentTimeMillis());
 						// clientConnection.setSocket(null);
-						newClients.remove(clientConnection);
+						// newClients.remove(clientConnection);
 					}
 				}
 			}
 
 		}
-		// tidyUpQueue();
+		tidyUpQueue();
 
 	}
 
 	private void tidyUpQueue() {
 		for (SocketWrapper socketWrapper : newClients) {
-			if (socketWrapper.getSocket() == null) {
+			if (socketWrapper.getToken().equals("")) {
 				newClients.remove(socketWrapper);
 			}
 		}
